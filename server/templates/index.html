@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Client</title>
+</head>
+<body>
+<ul id="chat"></ul>
+<input id="message" autocomplete="off"/>
+<button onclick="stream_data_start()">stream start</button>
+<button onclick="sendMessage()">Send</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+
+    var socket = io.connect('http://localhost:8051');
+
+    socket.on('message', function (data) {
+        console.log(data);
+    });
+
+    socket.on('connection', function (data) {
+        console.log(data);
+        stream_data_start()
+
+    });
+
+    function sendMessage() {
+        var message = document.getElementById('message').value;
+        socket.emit('message', message);
+        document.getElementById('message').value = '';
+    }
+
+    function stream_data_start() {
+        socket.emit('message');
+    }
+
+</script>
+</body>
+</html>

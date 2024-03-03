@@ -1,0 +1,8 @@
+web_socket:
+  receive:
+    host: localhost
+    port: 8080
+  deliver:
+    host: localhost
+    port: 8051
+  logs_folder: app/logs
