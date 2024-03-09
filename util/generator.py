@@ -28,7 +28,7 @@ def generate_random_message(num_subscribers: int, max_blocks_per_subscriber: int
 if __name__ == '__main__':
     with connect("ws://localhost:8080") as websocket:
         while True:
-            time.sleep(0.2)
+            time.sleep(1)
             print(1)
             data = generate_random_message(12, 8, 12)
             websocket.send(Parser.map_object_to_json(data))

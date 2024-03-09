@@ -6,8 +6,8 @@ from threading import Lock
 from util.log import CustomLogger
 from domain.message_aboat_cp import MessageFromSystemAgent
 
-n = 0
-t = 0
+criteria_block = -1
+criteria_subscriber = -1
 
 
 class QueueMessage:
@@ -42,19 +42,22 @@ class QueueMessage:
                 raise ValueError('Value is None')
 
     def check_cp(self, data: MessageFromSystemAgent):
+        global criteria_block
         start_time = time.time()
         for i in range(len(data.subscribers)):
             sub = data.get_subscribers(i)
-            for j in range(len(sub.function_blocks)):
-                block = sub.get_function_blocks(j)
-                for k in range(len(block.control_parameters)):
-                    cp = block.get_parameter(k)
-                    flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=10, y=85)
-                    # flag = True
-                    # if cp.value < 10 or cp.value > 85:
-                    #     flag = False
-                    if flag is False:
-                        self.log.info(cp)
+            if criteria_subscriber != -1 or criteria_subscriber == sub:
+                for j in range(len(sub.function_blocks)):
+                    block = sub.get_function_blocks(j)
+                    if criteria_block != -1 or criteria_block == block:
+                        for k in range(len(block.control_parameters)):
+                            cp = block.get_parameter(k)
+                            flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=10, y=85)
+                            # flag = True
+                            # if cp.value < 10 or cp.value > 85:
+                            #     flag = False
+                            if flag is False:
+                                self.log.info(cp)
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"Время выполнения: {execution_time} секунд")
