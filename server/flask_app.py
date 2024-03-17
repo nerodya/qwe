@@ -13,7 +13,7 @@ from server.message_queue import QueueMessage
 from util.parser import Parser
 
 streaming_mode_enabled = False  # Передача данных по web-socket
-message_interval = 1  # Интервал отправки сообщений в секундах
+message_interval = 0.2  # Интервал отправки сообщений в секундах
 
 
 class FlaskApp:
@@ -246,14 +246,33 @@ class FlaskApp:
             message_interval = new_interval
             return Response('Новый период между отправкой сообщений установлен', status=200, mimetype='text/plain')
 
+        @self.app.route('/reset-criteria', methods=['POST'])
+        def reset_criteria():
+            """
+            Сброс критерий для выборки КП.
+
+            Этот ресурс позволяет сбросить критерии выборки КП.
+
+            ---
+            responses:
+              '200':
+                description: Критерии выборки КП сброшены
+            """
+            server.message_queue.criteria_subscriber = None
+            server.message_queue.criteria_block = None
+
+            return Response('Критерии выборки КП сброшены', status=200, mimetype='text/plain')
+
     def stream_data(self):
         while True:
             if streaming_mode_enabled:
 
                 time.sleep(message_interval)
 
-                response = Parser.map_object_to_json(self.queue.get_message())
-                self.socketIO.emit('message', response)  # Отправляем ответное сообщение клиенту
+                data = self.queue.get_message()
+                if data is not None or data == '{"message": []}':
+                    response = Parser.map_object_to_json(data)
+                    self.socketIO.emit('message', response)  # Отправляем ответное сообщение клиенту
 
     def start(self):
         self.socketIO.run(self.app, self.host, self.port, allow_unsafe_werkzeug=True)

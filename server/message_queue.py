@@ -1,13 +1,34 @@
 import queue
 import time
 from queue import Queue
-from threading import Thread
 from threading import Lock
-from util.log import CustomLogger
-from domain.message_aboat_cp import MessageFromSystemAgent
 
-criteria_block = -1
-criteria_subscriber = -1
+from domain.message_aboat_cp import MessageFromSystemAgent
+from domain.subscriber import Subscriber
+from util.log import CustomLogger
+
+criteria_block = None
+criteria_subscriber = None
+
+
+def get_filter(message) -> MessageFromSystemAgent or None:
+    global criteria_block
+    global criteria_subscriber
+
+    response = MessageFromSystemAgent()
+
+    for i in range(len(message.subscribers)):
+        sub = message.get_subscribers(i)
+        if criteria_subscriber is None or sub.number == criteria_subscriber:
+            response_sub = Subscriber(sub.number)
+            for j in range(len(sub.function_blocks)):
+                block = sub.get_function_blocks(j)
+                if criteria_block is None or block.number == criteria_block:
+                    response_sub.add_function_block(block)
+            response.add_subscriber(response_sub)
+            if len(response_sub.function_blocks) == 0:
+                return None
+    return response
 
 
 class QueueMessage:
@@ -27,7 +48,7 @@ class QueueMessage:
                 return None
             else:
                 try:
-                    message = self.message_queue.get_nowait()
+                    message = get_filter(self.message_queue.get_nowait())
                 except queue.Empty:
                     raise ValueError('Result queue is empty')
                 return message
@@ -42,22 +63,17 @@ class QueueMessage:
                 raise ValueError('Value is None')
 
     def check_cp(self, data: MessageFromSystemAgent):
-        global criteria_block
         start_time = time.time()
         for i in range(len(data.subscribers)):
             sub = data.get_subscribers(i)
-            if criteria_subscriber != -1 or criteria_subscriber == sub:
-                for j in range(len(sub.function_blocks)):
-                    block = sub.get_function_blocks(j)
-                    if criteria_block != -1 or criteria_block == block:
-                        for k in range(len(block.control_parameters)):
-                            cp = block.get_parameter(k)
-                            flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=10, y=85)
-                            # flag = True
-                            # if cp.value < 10 or cp.value > 85:
-                            #     flag = False
-                            if flag is False:
-                                self.log.info(cp)
+            for j in range(len(sub.function_blocks)):
+                block = sub.get_function_blocks(j)
+                for k in range(len(block.control_parameters)):
+                    cp = block.get_parameter(k)
+                    flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=10, y=85)
+                    if flag is False:
+                        self.log.info(cp)
+
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"Время выполнения: {execution_time} секунд")

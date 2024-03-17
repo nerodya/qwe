@@ -14,7 +14,7 @@ class ServerSettingsGUI:
         self.period_update = 200
 
         self.root = root
-        self.root.title("Настройки сервера")
+        self.root.title("Настройки")
         self.root.geometry("1920x1080")
         self.tab_control = ttk.Notebook(root)
         self.tab1 = ttk.Frame(self.tab_control)

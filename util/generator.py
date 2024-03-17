@@ -10,13 +10,13 @@ from domain.message_aboat_cp import MessageFromSystemAgent
 
 def generate_random_message(num_subscribers: int, max_blocks_per_subscriber: int, max_parameters_per_block: int):
     message = MessageFromSystemAgent()
-    for _ in range(num_subscribers):
-        subscriber = Subscriber(random.randint(1, num_subscribers + 1))  # Генерация случайного номера подписчика
-        for _ in range(random.randint(1, max_blocks_per_subscriber)):
-            function_block = FunctionBlock(random.randint(1, max_blocks_per_subscriber + 1))  # Генерация случайного номера блока функций
-            for _ in range(random.randint(1, max_parameters_per_block)):
+    for i in range(num_subscribers):
+        subscriber = Subscriber(i)  # Генерация случайного номера подписчика
+        for j in range(random.randint(1, max_blocks_per_subscriber)):
+            function_block = FunctionBlock(j)  # Генерация случайного номера блока функций
+            for k in range(random.randint(1, max_parameters_per_block)):
                 control_parameter = ControlParameter(random.randint(1, 100),
-                                                     random.randint(1, 100),
+                                                     k,
                                                      subscriber.number,
                                                      function_block.number)  # Генерация случайных значений параметров
                 function_block.add_control_parameter(control_parameter)
@@ -31,4 +31,6 @@ if __name__ == '__main__':
             time.sleep(1)
             print(1)
             data = generate_random_message(12, 8, 12)
-            websocket.send(Parser.map_object_to_json(data))
+            message = Parser.map_object_to_json(data)
+            print(message)
+            websocket.send(message)
