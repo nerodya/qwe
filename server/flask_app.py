@@ -108,21 +108,32 @@ class FlaskApp:
                 response_message = ''
                 data = request.json
 
+                if 'number_sub' in data:
+                    criteria_subscriber = data['number_sub']
+                    server.message_queue.criteria_subscriber = criteria_subscriber
+                    response_message += f'number_sub: {criteria_subscriber}'
+                    image_path = ''
+                    if criteria_subscriber % 2 == 0:
+                        image_path = 'resource/student_AFAR_Stoiki_new.svg'
+                    else:
+                        image_path = 'resource/sub_image.svg'
+
+                    # Проверка на существование файла и его размер
+                    if os.path.exists(image_path) and os.path.getsize(image_path) > 0:
+                        with open(image_path, 'rb') as image_file:
+                            image_data = image_file.read()
+
+                        # Отправка изображения в ответе
+                        return Response(response=image_data,
+                                        status=200,
+                                        mimetype='application/xml')
+
                 if 'number_block' in data:
                     criteria_block = data['number_block']
                     server.message_queue.criteria_block = criteria_block
                     response_message += f'number_block: {criteria_block}'
 
-                if 'number_sub' in data:
-                    criteria_subscriber = data['number_sub']
-                    server.message_queue.criteria_subscriber = criteria_subscriber
-                    response_message += f'number_sub: {criteria_subscriber}'
-
-                if response_message:
-                    return Response(response=f'Received parameter: {response_message}\n',
-                                    status=200,
-                                    mimetype='text/plain')
-                else:
+                if response_message == '':
                     return Response(response='Не переданы параметры для фильтрации\n',
                                     status=400,
                                     mimetype='text/plain')
@@ -262,6 +273,33 @@ class FlaskApp:
             server.message_queue.criteria_block = None
 
             return Response('Критерии выборки КП сброшены', status=200, mimetype='text/plain')
+
+        @self.app.route('/image-code', methods=['GET'])
+        def get_image_code():
+            """
+            Получить изображение стоек
+            Этот ресурс возвращает изображение в формате xml.
+            ---
+            responses:
+              '200':
+                description: Изображение в формате xml
+              '404':
+                description: Файл с изображением пуст или не существует
+            """
+            image_path = 'resource/sub_image.svg'
+
+            # Проверка на существование файла и его размер
+            if os.path.exists(image_path) and os.path.getsize(image_path) > 0:
+                with open(image_path, 'rb') as image_file:
+                    image_data = image_file.read()
+
+                # Отправка изображения в ответе
+                return Response(response=image_data,
+                                status=200,
+                                mimetype='application/xml')
+            else:
+                return Response(response='Файл с изображением пуст или не существует',
+                                status=404)
 
     def stream_data(self):
         while True:

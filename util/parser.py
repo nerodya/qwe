@@ -16,7 +16,9 @@ class Encoder(json.JSONEncoder):
             if isinstance(obj, ControlParameter):
                 return {
                     "value": obj.value,
-                    "number": obj.number
+                    "number": obj.number,
+                    "min_value": obj.min_value,
+                    "max_value": obj.max_value
                 }
             elif isinstance(obj, FunctionBlock):
                 return {
@@ -57,6 +59,8 @@ class Decoder(json.JSONDecoder):
 
                         for control_parameters_data in function_block_data['control_parameters']:
                             control_parameters = ControlParameter(
+                                min_value=control_parameters_data['min_value'],
+                                max_value=control_parameters_data['max_value'],
                                 value=control_parameters_data['value'],
                                 number_cp=control_parameters_data['number'],
                                 number_sub=subscriber.number,
