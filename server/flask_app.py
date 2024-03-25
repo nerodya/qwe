@@ -313,4 +313,4 @@ class FlaskApp:
                     self.socketIO.emit('message', response)  # Отправляем ответное сообщение клиенту
 
     def start(self):
-        self.socketIO.run(self.app, self.host, self.port, allow_unsafe_werkzeug=True)
+        self.socketIO.run(self.app, self.host, self.port, allow_unsafe_werkzeug=True, cors_allowed_origins="http://localhost:3000")
