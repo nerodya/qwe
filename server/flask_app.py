@@ -25,7 +25,7 @@ class FlaskApp:
         self.port = config.web_socket.deliver.port
 
         self.app = Flask(__name__)
-        self.socketIO = SocketIO(self.app)
+        self.socketIO = SocketIO(self.app, cors_allowed_origins="*")
         self.swagger = Swagger(self.app)
 
         self.app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
@@ -313,4 +313,4 @@ class FlaskApp:
                     self.socketIO.emit('message', response)  # Отправляем ответное сообщение клиенту
 
     def start(self):
-        self.socketIO.run(self.app, self.host, self.port, allow_unsafe_werkzeug=True, cors_allowed_origins="http://localhost:3000")
+        self.socketIO.run(self.app, self.host, self.port, allow_unsafe_werkzeug=True)
