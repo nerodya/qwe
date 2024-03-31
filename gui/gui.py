@@ -14,8 +14,8 @@ class ServerSettingsGUI:
         self.period_update = 200
 
         self.root = root
-        self.root.title("Настройки")
-        self.root.geometry("1920x1080")
+        self.root.title("GUI сервера мониторинга и трансляции")
+        self.root.geometry("500x400")
         self.tab_control = ttk.Notebook(root)
         self.tab1 = ttk.Frame(self.tab_control)
         self.tab2 = ttk.Frame(self.tab_control)
@@ -38,6 +38,32 @@ class ServerSettingsGUI:
         time_period_label = ttk.Label(settings_frame, text="Период времени (мс):")
         time_period_label.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
+        number_sub = ttk.Label(settings_frame, text="Номер агента")
+        number_sub.grid(row=6, column=0, padx=0, pady=0, sticky="e")
+        var1 = tk.StringVar()
+        combobox1 = ttk.Combobox(settings_frame, textvariable=var1, width=14, height=6)
+        combobox1['values'] = ['1', '2', '3']
+        combobox1['state'] = 'readonly'
+        # combobox1.pack(padx=5, pady=5)
+        combobox1.grid(row=6, column=1, padx=5, pady=5, sticky="e")
+
+        number_block = ttk.Label(settings_frame, text="Номер блока")
+        number_block.grid(row=7, column=0, padx=5, pady=0, sticky="e")
+        var2 = tk.StringVar()
+        combobox2 = ttk.Combobox(settings_frame, textvariable=var2)
+        combobox2['values'] = ['127', '133', 'rewrewrwer']
+        combobox2['state'] = 'readonly'
+        combobox2.grid(row=7, column=1, padx=5, pady=5, sticky="e")
+
+        number_p = ttk.Label(settings_frame, text="Номер параметра")
+        number_p.grid(row=8, column=0, padx=5, pady=0, sticky="e")
+        var3 = tk.StringVar()
+        combobox3 = ttk.Combobox(settings_frame, textvariable=var3)
+        combobox3['values'] = ['1', '2', '7']
+        combobox3['state'] = 'readonly'
+        combobox3.grid(row=8, column=1, padx=5, pady=5, sticky="e")
+
+
         self.time_period_entry = ttk.Entry(settings_frame)
         self.time_period_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
@@ -51,10 +77,10 @@ class ServerSettingsGUI:
         max_value_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
 
         self.max_value_entry = ttk.Entry(settings_frame)
-        self.max_value_entry.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+        self.max_value_entry.grid(row=2, column=1, padx=5, pady=15, sticky="ew")
 
         apply_button = ttk.Button(settings_frame, text="Применить", command=self.apply_settings)
-        apply_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+        apply_button.grid(row=9, column=0, columnspan=2, padx=5, pady=5)
 
         # self.update_graph_var = tk.BooleanVar()
         # self.update_graph_checkbox = ttk.Checkbutton(settings_frame, text="Обновлять график",
@@ -62,7 +88,7 @@ class ServerSettingsGUI:
         # self.update_graph_checkbox.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="w")
 
         self.update_graph_button = ttk.Button(settings_frame, text="Включить/выключить обновление графика", command=self.toggle_graph_update)
-        self.update_graph_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+        self.update_graph_button.grid(row=10, column=0, columnspan=2, padx=5, pady=5)
 
     def apply_settings(self):
         try:

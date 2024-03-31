@@ -32,30 +32,6 @@ class FlaskApp:
 
         self.queue = queue
 
-        @self.app.route('/w', methods=['GET'])
-        def get_message():
-            global t
-            t = True
-            return ''
-
-        @self.app.route('/', methods=['GET'])
-        def index():
-            '''
-                Это пример приветствия
-                Этот ресурс принимает имя и возвращает приветствие.
-                ---
-                parameters:
-                  - name: name
-                    in: path
-                    type: string
-                    required: true
-                    description: Имя, которое нужно приветствовать
-                responses:
-                  200:
-                    description: Приветствие
-                '''
-            return render_template('index.html')
-
         @self.socketIO.on('connect')
         def connection():
             Thread(target=self.stream_data, daemon=True).start()
@@ -137,6 +113,8 @@ class FlaskApp:
                     return Response(response='Не переданы параметры для фильтрации\n',
                                     status=400,
                                     mimetype='text/plain')
+                else:
+                    return Response(status=200)
             else:
                 return Response(response='Метод не разрешен, допустим только POST-запрос\n',
                                 status=405,
@@ -297,6 +275,28 @@ class FlaskApp:
                 return Response(response=image_data,
                                 status=200,
                                 mimetype='application/xml')
+            else:
+                return Response(response='Файл с изображением пуст или не существует',
+                                status=404)
+
+        @self.app.route('/log', methods=['GET'])
+        def get_file_log():
+            """
+            Получить файл логов
+            Этот ресурс позволяет получить филы логов по номерам агента и блоков.
+            ---
+            responses:
+              '200':
+                description: Файл application/octet-stream
+              '404':
+                description: Файла не существует
+            """
+
+            if True:
+                # Отправка изображения в ответе
+                return Response(response="qwe",
+                                status=200,
+                                mimetype='application/octet-stream')
             else:
                 return Response(response='Файл с изображением пуст или не существует',
                                 status=404)
