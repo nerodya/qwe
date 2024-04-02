@@ -16,6 +16,14 @@ streaming_mode_enabled = False  # Передача данных по web-socket
 message_interval = 0.2  # Интервал отправки сообщений в секундах
 
 
+def reset_settings_translation():
+    global message_interval, streaming_mode_enabled
+    message_interval = 1
+    server.message_queue.criteria_block = None
+    server.message_queue.criteria_subscriber = None
+    streaming_mode_enabled = False
+
+
 class FlaskApp:
 
     def __init__(self, queue: QueueMessage):
@@ -34,9 +42,16 @@ class FlaskApp:
 
         @self.socketIO.on('connect')
         def connection():
+            reset_settings_translation()
             Thread(target=self.stream_data, daemon=True).start()
             print('connecting client')
             self.socketIO.emit('connection', 'connection')
+
+        @self.socketIO.on('disconnect')
+        def disconnection():
+            print('disconnect client')
+            self.socketIO.emit('disconnection', 'disconnection')
+            reset_settings_translation()
 
         @self.app.route('/filter', methods=['POST'])
         def set_filter_block():
@@ -103,6 +118,8 @@ class FlaskApp:
                         return Response(response=image_data,
                                         status=200,
                                         mimetype='application/xml')
+                    else:
+                        return Response(status=400)
 
                 if 'number_block' in data:
                     criteria_block = data['number_block']
