@@ -308,15 +308,29 @@ class FlaskApp:
               '404':
                 description: Файла не существует
             """
+            # Отправка изображения в ответе
+            return Response(response="qwe",
+                            status=200,
+                            mimetype='application/octet-stream')
 
-            if True:
-                # Отправка изображения в ответе
-                return Response(response="qwe",
+        @self.app.route('/cp', methods=['GET'])
+        def get_last_cp():
+            """
+            Получить последние полученные контрольные параметры
+            Этот ресурс позволяет последние полученные контрольные параметры.
+            ---
+            responses:
+              '200':
+                description: JSON-сообщение application/json
+            """
+            data = self.queue.get_message()
+            if data is not None or data == '{"message": []}':
+                response = Parser.map_object_to_json(data)
+                return Response(response=response,
                                 status=200,
-                                mimetype='application/octet-stream')
+                                mimetype='application/json')
             else:
-                return Response(response='Файл с изображением пуст или не существует',
-                                status=404)
+                return Response(status=204)
 
     def stream_data(self):
         while True:
