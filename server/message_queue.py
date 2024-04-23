@@ -3,7 +3,7 @@ import time
 from queue import Queue
 from threading import Lock
 
-from domain.message_aboat_cp import MessageFromSystemAgent
+from domain.message_aboat_cp import MessageFromExternalDataSource
 from domain.subscriber import Subscriber
 from util.log import CustomLogger
 
@@ -11,11 +11,11 @@ criteria_block = None
 criteria_subscriber = None
 
 
-def get_filter(message) -> MessageFromSystemAgent or None:
+def get_filter(message) -> MessageFromExternalDataSource or None:
     global criteria_block
     global criteria_subscriber
 
-    response = MessageFromSystemAgent()
+    response = MessageFromExternalDataSource()
 
     for i in range(len(message.subscribers)):
         sub = message.get_subscribers(i)
@@ -54,7 +54,7 @@ class QueueMessage:
                 return message
 
     # todo Тут добавить обработку хводящих КП
-    def add_message(self, message: MessageFromSystemAgent):
+    def add_message(self, message: MessageFromExternalDataSource):
         with self.look:
             if message is not None:
                 self.check_cp(message)
@@ -62,7 +62,7 @@ class QueueMessage:
             else:
                 raise ValueError('Value is None')
 
-    def check_cp(self, data: MessageFromSystemAgent):
+    def check_cp(self, data: MessageFromExternalDataSource):
         start_time = time.time()
         for i in range(len(data.subscribers)):
             sub = data.get_subscribers(i)

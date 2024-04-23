@@ -1,7 +1,7 @@
 from domain.subscriber import Subscriber
 
 
-class MessageFromSystemAgent:
+class MessageFromExternalDataSource:
 
     def __init__(self):
         self.subscribers = []

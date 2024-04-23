@@ -2,7 +2,7 @@
 from domain.function_block import FunctionBlock
 from domain.control_parameter import ControlParameter
 from domain.subscriber import Subscriber
-from domain.message_aboat_cp import MessageFromSystemAgent
+from domain.message_aboat_cp import MessageFromExternalDataSource
 
 
 # TODO - сделать нормальную обработку ошибок
@@ -31,7 +31,7 @@ class Encoder(json.JSONEncoder):
                     "function_blocks": obj.function_blocks,
                     "description": obj.description
                 }
-            elif isinstance(obj, MessageFromSystemAgent):
+            elif isinstance(obj, MessageFromExternalDataSource):
                 return {
                     "message": obj.subscribers
                 }
@@ -49,7 +49,7 @@ class Decoder(json.JSONDecoder):
     def object_hook(json_dict):
         try:
             if 'message' in json_dict:
-                message = MessageFromSystemAgent()
+                message = MessageFromExternalDataSource()
                 for subscriber_data in json_dict['message']:
                     subscriber = Subscriber(number_sub=subscriber_data['number_sub'])
                     subscriber.description = subscriber_data['description']
@@ -82,7 +82,7 @@ class Decoder(json.JSONDecoder):
 class Parser:
 
     @staticmethod
-    def map_json_to_object(json_data: str) -> MessageFromSystemAgent:
+    def map_json_to_object(json_data: str) -> MessageFromExternalDataSource:
         res = json.loads(json_data, cls=Decoder)
         return res
 
@@ -92,20 +92,20 @@ class Parser:
         return res
 
 
-if __name__ == '__main__':
-    m = MessageFromSystemAgent()
-    s = Subscriber(1)
-    f = FunctionBlock(1)
-    f1 = FunctionBlock(11)
-    c = ControlParameter(1, 2)
-    c1 = ControlParameter(1, 2)
-    c2 = ControlParameter(1, 2)
-    f.add_control_parameter(2, 1)
-    f.add_control_parameter(2, 1)
-    f1.add_control_parameter(2, 1)
-    f1.add_control_parameter(2, 1)
-    s.add_function_block(f)
-    s.add_function_block(f1)
-    m.add_subscriber(s)
-
-    print(Parser.map_object_to_json(m))
+# if __name__ == '__main__':
+#     m = MessageFromSystemAgent()
+#     s = Subscriber(1)
+#     f = FunctionBlock(1)
+#     f1 = FunctionBlock(11)
+#     c = ControlParameter(1, 2)
+#     c1 = ControlParameter(1, 2)
+#     c2 = ControlParameter(1, 2)
+#     f.add_control_parameter(2, 1)
+#     f.add_control_parameter(2, 1)
+#     f1.add_control_parameter(2, 1)
+#     f1.add_control_parameter(2, 1)
+#     s.add_function_block(f)
+#     s.add_function_block(f1)
+#     m.add_subscriber(s)
+#
+#     print(Parser.map_object_to_json(m))

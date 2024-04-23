@@ -40,10 +40,12 @@ class FlaskApp:
 
         self.queue = queue
 
+        self.thread = None
+
         @self.socketIO.on('connect')
         def connection():
             reset_settings_translation()
-            Thread(target=self.stream_data, daemon=True).start()
+            # Thread(target=self.stream_data, daemon=True).start()
             print('connecting client')
             self.socketIO.emit('connection', 'connection')
 
@@ -185,6 +187,14 @@ class FlaskApp:
             # Изменение состояния флага
             streaming_mode_enabled = not streaming_mode_enabled
 
+            if streaming_mode_enabled is True:
+                if self.thread is None:
+                    self.thread = Thread(target=self.stream_data, daemon=True)
+                self.thread.start()
+            else:
+                self.thread = None
+
+
             # Формирование ответа
             response_message = 'Режим передачи данных по WebSocket включен' \
                 if streaming_mode_enabled \
@@ -323,25 +333,28 @@ class FlaskApp:
               '200':
                 description: JSON-сообщение application/json
             """
+            get_last_cp_ws(None)
+            return Response(status=200)
+
+
+        @self.socketIO.on('last_cp')
+        def get_last_cp_ws(data):
             data = self.queue.get_message()
             if data is not None or data == '{"message": []}':
                 response = Parser.map_object_to_json(data)
-                return Response(response=response,
-                                status=200,
-                                mimetype='application/json')
-            else:
-                return Response(status=204)
+                self.socketIO.emit('last_cp', response)
 
     def stream_data(self):
         while True:
             if streaming_mode_enabled:
-
                 time.sleep(message_interval)
-
                 data = self.queue.get_message()
                 if data is not None or data == '{"message": []}':
                     response = Parser.map_object_to_json(data)
                     self.socketIO.emit('message', response)  # Отправляем ответное сообщение клиенту
+            else:
+                return
+
 
     def start(self):
         self.socketIO.run(self.app, self.host, self.port, allow_unsafe_werkzeug=True)
