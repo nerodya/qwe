@@ -31,7 +31,7 @@ def get_filter(message) -> MessageFromExternalDataSource or None:
     return response
 
 
-class QueueMessage:
+class IncomingMessageHandler:
 
     def __init__(self):
         # Создаем очередь для обмена данными между потоками
@@ -70,7 +70,7 @@ class QueueMessage:
                 block = sub.get_function_blocks(j)
                 for k in range(len(block.control_parameters)):
                     cp = block.get_parameter(k)
-                    flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=10, y=85)
+                    flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=cp.min_value, y=cp.max_value)
                     if flag is False:
                         self.log.info(cp)
 

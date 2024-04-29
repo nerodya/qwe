@@ -1,17 +1,20 @@
+import time
 from asyncio import AbstractEventLoop
 
 import asyncio
 import websockets
 
 from threading import Thread
-from server.message_queue import QueueMessage
+from server.incoming_message_handler import IncomingMessageHandler
 from application_property import config
 from util.parser import Parser
+
+dalay_process = 0.1
 
 
 class WebSocketReceiver:
 
-    def __init__(self, queue: QueueMessage):
+    def __init__(self, queue: IncomingMessageHandler):
         config.load()
 
         self.host = config.web_socket.receive.host
@@ -22,6 +25,7 @@ class WebSocketReceiver:
     async def websocket_handler(self, ws: websockets):
         async for message in ws:
             try:
+                time.sleep(dalay_process)
                 data = Parser.map_json_to_object(message)
                 self.queue.add_message(data)
             except ValueError as e:

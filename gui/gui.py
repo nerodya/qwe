@@ -6,8 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+import server.web_socket_receiver
 
-class ServerSettingsGUI:
+
+class GUIService:
     def __init__(self, root):
 
         self.time_limit = 60
@@ -39,9 +41,9 @@ class ServerSettingsGUI:
         time_period_label.grid(row=0, column=0, padx=5, pady=5, sticky="e")
 
         number_sub = ttk.Label(settings_frame, text="Номер агента")
-        number_sub.grid(row=6, column=0, padx=0, pady=0, sticky="e")
+        number_sub.grid(row=6, column=0, padx=5, pady=0, sticky="e")
         var1 = tk.StringVar()
-        combobox1 = ttk.Combobox(settings_frame, textvariable=var1, width=14, height=6)
+        combobox1 = ttk.Combobox(settings_frame, textvariable=var1)
         combobox1['values'] = ['1', '2', '3']
         combobox1['state'] = 'readonly'
         # combobox1.pack(padx=5, pady=5)
@@ -93,6 +95,8 @@ class ServerSettingsGUI:
     def apply_settings(self):
         try:
             time_period = int(self.time_period_entry.get())
+            if time_period > 0:
+                server.web_socket_receiver.dalay_process = time_period
             min_value = int(self.min_value_entry.get())
             max_value = int(self.max_value_entry.get())
             if min_value >= max_value:
@@ -145,5 +149,5 @@ class ServerSettingsGUI:
 
 
 root = tk.Tk()
-app = ServerSettingsGUI(root)
+app = GUIService(root)
 root.mainloop()

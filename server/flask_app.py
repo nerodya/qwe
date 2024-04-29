@@ -7,9 +7,9 @@ from flask import Flask, render_template
 from flask import Response, request
 from flask_socketio import SocketIO
 
-import server.message_queue
+import server.incoming_message_handler
 from application_property import config
-from server.message_queue import QueueMessage
+from server.incoming_message_handler import IncomingMessageHandler
 from util.parser import Parser
 
 streaming_mode_enabled = False  # Передача данных по web-socket
@@ -26,7 +26,7 @@ def reset_settings_translation():
 
 class FlaskApp:
 
-    def __init__(self, queue: QueueMessage):
+    def __init__(self, queue: IncomingMessageHandler):
         config.load()
 
         self.host = config.web_socket.deliver.host
@@ -194,7 +194,6 @@ class FlaskApp:
             else:
                 self.thread = None
 
-
             # Формирование ответа
             response_message = 'Режим передачи данных по WebSocket включен' \
                 if streaming_mode_enabled \
@@ -324,7 +323,7 @@ class FlaskApp:
                             mimetype='application/octet-stream')
 
         @self.app.route('/cp', methods=['GET'])
-        def get_last_cp():
+        def get_last_cp_http():
             """
             Получить последние полученные контрольные параметры
             Этот ресурс позволяет последние полученные контрольные параметры.
@@ -334,15 +333,17 @@ class FlaskApp:
                 description: JSON-сообщение application/json
             """
             get_last_cp_ws(None)
-            return Response(status=200)
-
+            return Response(response=get_last_cp(), status=200)
 
         @self.socketIO.on('last_cp')
         def get_last_cp_ws(data):
+            self.socketIO.emit('last_cp', get_last_cp())
+
+        def get_last_cp() -> str:
             data = self.queue.get_message()
             if data is not None or data == '{"message": []}':
-                response = Parser.map_object_to_json(data)
-                self.socketIO.emit('last_cp', response)
+                return Parser.map_object_to_json(data)
+
 
     def stream_data(self):
         while True:
@@ -354,7 +355,6 @@ class FlaskApp:
                     self.socketIO.emit('message', response)  # Отправляем ответное сообщение клиенту
             else:
                 return
-
 
     def start(self):
         self.socketIO.run(self.app, self.host, self.port, allow_unsafe_werkzeug=True)
