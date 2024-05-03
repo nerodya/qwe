@@ -13,14 +13,14 @@ from server.incoming_message_handler import IncomingMessageHandler
 from util.parser import Parser
 
 streaming_mode_enabled = False  # Передача данных по web-socket
-message_interval = 0.2  # Интервал отправки сообщений в секундах
+message_interval = 2  # Интервал отправки сообщений в секундах
 
 
 def reset_settings_translation():
     global message_interval, streaming_mode_enabled
     message_interval = 1
-    server.message_queue.criteria_block = None
-    server.message_queue.criteria_subscriber = None
+    server.incoming_message_handler.criteria_block = None
+    server.incoming_message_handler.criteria_subscriber = None
     streaming_mode_enabled = False
 
 
@@ -103,7 +103,7 @@ class FlaskApp:
 
                 if 'number_sub' in data:
                     criteria_subscriber = data['number_sub']
-                    server.message_queue.criteria_subscriber = criteria_subscriber
+                    server.incoming_message_handler.criteria_subscriber = criteria_subscriber
                     response_message += f'number_sub: {criteria_subscriber}'
                     image_path = ''
                     if criteria_subscriber % 2 == 0:
@@ -125,7 +125,7 @@ class FlaskApp:
 
                 if 'number_block' in data:
                     criteria_block = data['number_block']
-                    server.message_queue.criteria_block = criteria_block
+                    server.incoming_message_handler.criteria_block = criteria_block
                     response_message += f'number_block: {criteria_block}'
 
                 if response_message == '':
@@ -273,8 +273,8 @@ class FlaskApp:
               '200':
                 description: Критерии выборки КП сброшены
             """
-            server.message_queue.criteria_subscriber = None
-            server.message_queue.criteria_block = None
+            server.incoming_message_handler.criteria_subscriber = None
+            server.incoming_message_handler.criteria_block = None
 
             return Response('Критерии выборки КП сброшены', status=200, mimetype='text/plain')
 
@@ -343,7 +343,6 @@ class FlaskApp:
             data = self.queue.get_message()
             if data is not None or data == '{"message": []}':
                 return Parser.map_object_to_json(data)
-
 
     def stream_data(self):
         while True:

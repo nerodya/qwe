@@ -70,7 +70,7 @@ class IncomingMessageHandler:
                 block = sub.get_function_blocks(j)
                 for k in range(len(block.control_parameters)):
                     cp = block.get_parameter(k)
-                    flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=cp.min_value, y=cp.max_value)
+                    flag = cp.self_check(function=lambda value_cp, x, y: x < value_cp < y, x=cp.max_value, y=cp.min_value)
                     if flag is False:
                         self.log.info(cp)
 

@@ -45,7 +45,7 @@ class CustomLogger:
     def init_logger(number_sub: int, number_block: int, hash_log: str) -> Logger:
 
         log_folder = base_logs_folder + '/sub_' + str(number_sub) + '/block_' + str(number_block)
-        logger_name = datetime.today().strftime('%Y-%m-%d') + hash_log
+        logger_name = datetime.today().strftime('%Y-%m-%d') + '_' + hash_log
 
         # Проверяем, существует ли каталог, и создаем его, если нет
         if not os.path.exists(log_folder):
