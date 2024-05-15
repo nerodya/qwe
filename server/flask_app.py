@@ -56,7 +56,7 @@ class FlaskApp:
             reset_settings_translation()
 
         @self.app.route('/filter', methods=['POST'])
-        def set_filter_block():
+        def set_filter():
             """
                 Фильтрация данных
                 Этот ресурс принимает два параметра JSON: number_block и number_sub для фильтрации данных.
@@ -105,23 +105,6 @@ class FlaskApp:
                     criteria_subscriber = data['number_sub']
                     server.incoming_message_handler.criteria_subscriber = criteria_subscriber
                     response_message += f'number_sub: {criteria_subscriber}'
-                    image_path = ''
-                    if criteria_subscriber % 2 == 0:
-                        image_path = 'resource/student_AFAR_Stoiki_new.svg'
-                    else:
-                        image_path = 'resource/sub_image.svg'
-
-                    # Проверка на существование файла и его размер
-                    if os.path.exists(image_path) and os.path.getsize(image_path) > 0:
-                        with open(image_path, 'rb') as image_file:
-                            image_data = image_file.read()
-
-                        # Отправка изображения в ответе
-                        return Response(response=image_data,
-                                        status=200,
-                                        mimetype='application/xml')
-                    else:
-                        return Response(status=400)
 
                 if 'number_block' in data:
                     criteria_block = data['number_block']
@@ -138,34 +121,6 @@ class FlaskApp:
                 return Response(response='Метод не разрешен, допустим только POST-запрос\n',
                                 status=405,
                                 mimetype='text/plain')
-
-        @self.app.route('/image', methods=['GET'])
-        def get_image_sun():
-            """
-                Получить изображение стоек
-                Этот ресурс возвращает изображение в формате SVG.
-                ---
-                responses:
-                  '200':
-                    description: Изображение в формате SVG
-                  '404':
-                    description: Файл с изображением пуст или не существует
-                """
-
-            image_path = 'resource/sub_image.svg'
-
-            # Проверка на существование файла и его размер
-            if os.path.exists(image_path) and os.path.getsize(image_path) > 0:
-                with open(image_path, 'rb') as image_file:
-                    image_data = image_file.read()
-
-                # Отправка изображения в ответе
-                return Response(response=image_data,
-                                status=200,
-                                mimetype='image/svg+xml')
-            else:
-                return Response(response='Файл с изображением пуст или не существует',
-                                status=404)
 
         @self.app.route('/toggle-streaming-mode', methods=['GET'])
         def toggle_streaming_mode():
@@ -278,32 +233,45 @@ class FlaskApp:
 
             return Response('Критерии выборки КП сброшены', status=200, mimetype='text/plain')
 
-        @self.app.route('/image-code', methods=['GET'])
-        def get_image_code():
+        @self.app.route('/stand/<number>', methods=['GET'])
+        def get_stand(number: int):
             """
-            Получить изображение стоек
-            Этот ресурс возвращает изображение в формате xml.
+            Возвращает изображение стойки в зависимости от переданного номера.
             ---
+            parameters:
+              - name: number
+                in: path
+                type: integer
+                required: true
+                description: Номер стойки
             responses:
-              '200':
-                description: Изображение в формате xml
-              '404':
+              200:
+                description: Изображение в формате SVG
+                content:
+                  image/svg+xml:
+                    schema:
+                      type: string
+                      format: binary
+              400:
                 description: Файл с изображением пуст или не существует
             """
-            image_path = 'resource/sub_image.svg'
+            number = int(number)
+            if number % 2 == 0:
+                image_path = 'resource/student_AFAR_Stoiki_new.svg'
+            else:
+                image_path = 'resource/sub_image.svg'
 
             # Проверка на существование файла и его размер
             if os.path.exists(image_path) and os.path.getsize(image_path) > 0:
                 with open(image_path, 'rb') as image_file:
                     image_data = image_file.read()
 
-                # Отправка изображения в ответе
-                return Response(response=image_data,
-                                status=200,
-                                mimetype='application/xml')
+                    # Отправка изображения в ответе
+                    return Response(response=image_data,
+                                        status=200,
+                                        mimetype='application/xml')
             else:
-                return Response(response='Файл с изображением пуст или не существует',
-                                status=404)
+                return Response(status=400)
 
         @self.app.route('/log', methods=['GET'])
         def get_file_log():

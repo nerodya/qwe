@@ -69,17 +69,17 @@ class GUIService:
         self.time_period_entry = ttk.Entry(settings_frame)
         self.time_period_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        min_value_label = ttk.Label(settings_frame, text="Минимальное значение:")
-        min_value_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
-
-        self.min_value_entry = ttk.Entry(settings_frame)
-        self.min_value_entry.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
-        max_value_label = ttk.Label(settings_frame, text="Максимальное значение:")
-        max_value_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
-
-        self.max_value_entry = ttk.Entry(settings_frame)
-        self.max_value_entry.grid(row=2, column=1, padx=5, pady=15, sticky="ew")
+        # min_value_label = ttk.Label(settings_frame, text="Минимальное значение:")
+        # min_value_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        #
+        # self.min_value_entry = ttk.Entry(settings_frame)
+        # self.min_value_entry.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+        #
+        # max_value_label = ttk.Label(settings_frame, text="Максимальное значение:")
+        # max_value_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        #
+        # self.max_value_entry = ttk.Entry(settings_frame)
+        # self.max_value_entry.grid(row=2, column=1, padx=5, pady=15, sticky="ew")
 
         apply_button = ttk.Button(settings_frame, text="Применить", command=self.apply_settings)
         apply_button.grid(row=9, column=0, columnspan=2, padx=5, pady=5)
